@@ -9,8 +9,10 @@ try:
     from shapely.errors import ShapelyDeprecationWarning
     import warnings
     warnings.filterwarnings('ignore', category=ShapelyDeprecationWarning)
+    warnings.filterwarnings("ignore", category=UserWarning)
 except:
     pass
+
 
 import copy
 import itertools
@@ -317,6 +319,9 @@ def main(args):
 
 if __name__ == "__main__":
     args = default_argument_parser().parse_args()
+    
+    args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/instance-segmentation/swin/maskformer2_swin_small_bs16_90k.yaml"
+    
     print("Command Line Args:", args)
     launch(
         main,
