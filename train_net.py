@@ -10,6 +10,7 @@ try:
     import warnings
     warnings.filterwarnings('ignore', category=ShapelyDeprecationWarning)
     warnings.filterwarnings("ignore", category=UserWarning)
+    warnings.filterwarnings("ignore", category=FutureWarning)
 except:
     pass
 
@@ -290,6 +291,7 @@ def setup(args):
     add_maskformer2_config(cfg)
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
+
     cfg.freeze()
     default_setup(cfg, args)
     # Setup logger for "mask_former" module
@@ -320,7 +322,9 @@ def main(args):
 if __name__ == "__main__":
     args = default_argument_parser().parse_args()
     
-    args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/swin/maskformer2_swin_small_bs16_90k.yaml"
+    # args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/swin/maskformer2_swin_small_bs16_90k.yaml"
+    args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/sp_maskformer2_R50_bs16_90k.yaml"
+    # args.num_gpus = 2
     
     print("Command Line Args:", args)
     launch(

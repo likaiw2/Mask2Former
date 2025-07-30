@@ -195,8 +195,10 @@ class MaskFormer(nn.Module):
         images = ImageList.from_tensors(images, self.size_divisibility)
 
         features = self.backbone(images.tensor)
-        outputs = self.sem_seg_head(features)
-
+        
+        # 传递原始图像给sem_seg_head用于superpixel生成
+        outputs = self.sem_seg_head(features, images=images.tensor)
+        
         if self.training:
             # mask classification target
             if "instances" in batched_inputs[0]:
