@@ -350,7 +350,8 @@ if __name__ == "__main__":
     # args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/maskformer2_R50_bs16_90k.yaml"
     # args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/swin/maskformer2_swin_small_bs16_90k.yaml"
     # args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/sp_maskformer2_R50_bs16_90k.yaml"
-    args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/swin/sp_maskformer2_swin_base_bs16_90k.yaml"
+    # args.config_file = "/home/liw324/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/swin/sp_maskformer2_swin_base_bs16_90k.yaml"
+    args.config_file = "/home/liw324/code/Segment/Mask2Former/configs/loveda/semantic-segmentation/maskformer2_R50_bs16_90k.yaml"
     # 添加resume参数，从指定checkpoint继续训练
     # args.resume = True
     # args.opts = ["OUTPUT_DIR", "/home/likai/code/Segment/Mask2Former/output/train_1"]
