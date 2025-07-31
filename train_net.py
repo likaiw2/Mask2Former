@@ -347,9 +347,12 @@ def main(args):
 if __name__ == "__main__":
     args = default_argument_parser().parse_args()
     
-    args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/swin/maskformer2_swin_small_bs16_90k.yaml"
+    # args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/maskformer2_R50_bs16_90k.yaml"
     # args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/sp_maskformer2_R50_bs16_90k.yaml"
-    # args.num_gpus = 2
+    args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/swin/sp_maskformer2_swin_base_bs16_90k.yaml"
+    # 添加resume参数，从指定checkpoint继续训练
+    # args.resume = True
+    # args.opts = ["OUTPUT_DIR", "/home/likai/code/Segment/Mask2Former/output/train_1"]
     
     print("Command Line Args:", args)
     launch(
