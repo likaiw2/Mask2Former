@@ -10,6 +10,7 @@ try:
     import warnings
     warnings.filterwarnings('ignore', category=ShapelyDeprecationWarning)
     warnings.filterwarnings("ignore", category=UserWarning)
+    warnings.filterwarnings("ignore", category=FutureWarning)
 except:
     pass
 
@@ -290,11 +291,37 @@ def setup(args):
     add_maskformer2_config(cfg)
     cfg.merge_from_file(args.config_file)
     cfg.merge_from_list(args.opts)
+    
+    # 自动生成递增的输出目录
+    base_output_dir = cfg.OUTPUT_DIR if cfg.OUTPUT_DIR else "output"
+    cfg.OUTPUT_DIR = get_next_train_dir(base_output_dir)
+    
     cfg.freeze()
     default_setup(cfg, args)
     # Setup logger for "mask_former" module
     setup_logger(output=cfg.OUTPUT_DIR, distributed_rank=comm.get_rank(), name="mask2former")
+    
+    print(f"本次训练输出目录: {cfg.OUTPUT_DIR}")
     return cfg
+
+def get_next_train_dir(base_dir="output"):
+    """
+    自动生成下一个可用的训练目录
+    如果存在train_1，则生成train_2，以此类推
+    """
+    import os
+    
+    # 确保基础目录存在
+    os.makedirs(base_dir, exist_ok=True)
+    
+    # 查找下一个可用的train_x目录
+    train_num = 1
+    while True:
+        train_dir = os.path.join(base_dir, f"train_{train_num}")
+        if not os.path.exists(train_dir):
+            os.makedirs(train_dir, exist_ok=True)
+            return train_dir
+        train_num += 1
 
 
 def main(args):
@@ -320,8 +347,13 @@ def main(args):
 if __name__ == "__main__":
     args = default_argument_parser().parse_args()
     
+    # args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/maskformer2_R50_bs16_90k.yaml"
     # args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/swin/maskformer2_swin_small_bs16_90k.yaml"
-    args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/maskformer2_R50_bs16_90k.yaml"
+    # args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/sp_maskformer2_R50_bs16_90k.yaml"
+    args.config_file = "/home/likai/code/Segment/Mask2Former/configs/cityscapes/semantic-segmentation/swin/sp_maskformer2_swin_base_bs16_90k.yaml"
+    # 添加resume参数，从指定checkpoint继续训练
+    # args.resume = True
+    # args.opts = ["OUTPUT_DIR", "/home/likai/code/Segment/Mask2Former/output/train_1"]
     
     print("Command Line Args:", args)
     launch(

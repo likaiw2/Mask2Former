@@ -26,6 +26,22 @@ def add_maskformer2_config(cfg):
     cfg.SOLVER.OPTIMIZER = "ADAMW"
     cfg.SOLVER.BACKBONE_MULTIPLIER = 0.1
 
+    # SEM_SEG_HEAD config
+    cfg.MODEL.SEM_SEG_HEAD.CONVS_DIM = 256
+    cfg.MODEL.SEM_SEG_HEAD.MASK_DIM = 256
+    cfg.MODEL.SEM_SEG_HEAD.NORM = "GN"
+    
+    # pixel decoder config
+    cfg.MODEL.SEM_SEG_HEAD.PIXEL_DECODER_NAME = "BasePixelDecoder"
+    
+    # Transformer encoder layers for pixel decoder
+    cfg.MODEL.SEM_SEG_HEAD.TRANSFORMER_ENC_LAYERS = 6
+    
+    # MSDeformAttn encoder configs
+    cfg.MODEL.SEM_SEG_HEAD.DEFORMABLE_TRANSFORMER_ENCODER_IN_FEATURES = ["res3", "res4", "res5"]
+    cfg.MODEL.SEM_SEG_HEAD.DEFORMABLE_TRANSFORMER_ENCODER_N_POINTS = 4
+    cfg.MODEL.SEM_SEG_HEAD.DEFORMABLE_TRANSFORMER_ENCODER_N_HEADS = 8
+
     # mask_former model config
     cfg.MODEL.MASK_FORMER = CN()
 
@@ -49,26 +65,50 @@ def add_maskformer2_config(cfg):
 
     cfg.MODEL.MASK_FORMER.TRANSFORMER_IN_FEATURE = "res5"
     cfg.MODEL.MASK_FORMER.ENFORCE_INPUT_PROJ = False
+    cfg.MODEL.MASK_FORMER.TRANSFORMER_DECODER_NAME = "StandardTransformerDecoder"
 
-    # mask_former inference config
+    # SuperPixel-specific configurations
+    cfg.MODEL.MASK_FORMER.ENABLE_SUPERPIXEL = True
+    cfg.MODEL.MASK_FORMER.SUPERPIXEL_FUSION_DIM = 128
+    cfg.MODEL.MASK_FORMER.SUPERPIXEL_FEATURE_TYPE = "id_embedding"
+    cfg.MODEL.MASK_FORMER.FUSION_STRATEGY = "concat_mlp"
+    
+    # SuperPixel generation parameters
+    cfg.MODEL.MASK_FORMER.SUPERPIXEL_ALGORITHM = "slic"
+    cfg.MODEL.MASK_FORMER.SUPERPIXEL_N_SEGMENTS = 100
+    cfg.MODEL.MASK_FORMER.SUPERPIXEL_COMPACTNESS = 10
+    cfg.MODEL.MASK_FORMER.SUPERPIXEL_SIGMA = 1
+
+    # Sometimes `backbone.size_divisibility` is set to 0 for some backbone, which will
+    # cause errors in mask head. This config is a workaround for it.
+    cfg.MODEL.MASK_FORMER.SIZE_DIVISIBILITY = 32
+
+    # LSJ aug
+    cfg.INPUT.IMAGE_SIZE = 1024
+    cfg.INPUT.MIN_SCALE = 0.1
+    cfg.INPUT.MAX_SCALE = 2.0
+
+    # point loss configs
+    cfg.MODEL.MASK_FORMER.TRAIN_NUM_POINTS = 112 * 112
+    cfg.MODEL.MASK_FORMER.OVERSAMPLE_RATIO = 3.0
+    cfg.MODEL.MASK_FORMER.IMPORTANCE_SAMPLE_RATIO = 0.75
+
+    # video mask2former configs
     cfg.MODEL.MASK_FORMER.TEST = CN()
     cfg.MODEL.MASK_FORMER.TEST.SEMANTIC_ON = True
     cfg.MODEL.MASK_FORMER.TEST.INSTANCE_ON = False
     cfg.MODEL.MASK_FORMER.TEST.PANOPTIC_ON = False
-    cfg.MODEL.MASK_FORMER.TEST.OBJECT_MASK_THRESHOLD = 0.0
-    cfg.MODEL.MASK_FORMER.TEST.OVERLAP_THRESHOLD = 0.0
+    cfg.MODEL.MASK_FORMER.TEST.OBJECT_MASK_THRESHOLD = 0.8
+    cfg.MODEL.MASK_FORMER.TEST.OVERLAP_THRESHOLD = 0.8
     cfg.MODEL.MASK_FORMER.TEST.SEM_SEG_POSTPROCESSING_BEFORE_INFERENCE = False
 
-    # Sometimes `backbone.size_divisibility` is set to 0 for some backbone (e.g. ResNet)
-    # you can use this config to override
-    cfg.MODEL.MASK_FORMER.SIZE_DIVISIBILITY = 32
+    # video
+    cfg.INPUT.SAMPLING_FRAME_NUM = 2
+    cfg.INPUT.SAMPLING_FRAME_RANGE = 5
+    cfg.INPUT.SAMPLING_FRAME_SHUFFLE = False
+    cfg.INPUT.AUGMENTATIONS = [] # "brightness", "contrast", "saturation", "rotation"
 
-    # pixel decoder config
-    cfg.MODEL.SEM_SEG_HEAD.MASK_DIM = 256
-    # adding transformer in pixel decoder
-    cfg.MODEL.SEM_SEG_HEAD.TRANSFORMER_ENC_LAYERS = 0
-    # pixel decoder
-    cfg.MODEL.SEM_SEG_HEAD.PIXEL_DECODER_NAME = "BasePixelDecoder"
+    cfg.MODEL.MASK_FORMER.TEST.WINDOW_INFERENCE = False
 
     # swin transformer backbone
     cfg.MODEL.SWIN = CN()
@@ -88,27 +128,3 @@ def add_maskformer2_config(cfg):
     cfg.MODEL.SWIN.PATCH_NORM = True
     cfg.MODEL.SWIN.OUT_FEATURES = ["res2", "res3", "res4", "res5"]
     cfg.MODEL.SWIN.USE_CHECKPOINT = False
-
-    # NOTE: maskformer2 extra configs
-    # transformer module
-    cfg.MODEL.MASK_FORMER.TRANSFORMER_DECODER_NAME = "MultiScaleMaskedTransformerDecoder"
-
-    # LSJ aug
-    cfg.INPUT.IMAGE_SIZE = 1024
-    cfg.INPUT.MIN_SCALE = 0.1
-    cfg.INPUT.MAX_SCALE = 2.0
-
-    # MSDeformAttn encoder configs
-    cfg.MODEL.SEM_SEG_HEAD.DEFORMABLE_TRANSFORMER_ENCODER_IN_FEATURES = ["res3", "res4", "res5"]
-    cfg.MODEL.SEM_SEG_HEAD.DEFORMABLE_TRANSFORMER_ENCODER_N_POINTS = 4
-    cfg.MODEL.SEM_SEG_HEAD.DEFORMABLE_TRANSFORMER_ENCODER_N_HEADS = 8
-
-    # point loss configs
-    # Number of points sampled during training for a mask point head.
-    cfg.MODEL.MASK_FORMER.TRAIN_NUM_POINTS = 112 * 112
-    # Oversampling parameter for PointRend point sampling during training. Parameter `k` in the
-    # original paper.
-    cfg.MODEL.MASK_FORMER.OVERSAMPLE_RATIO = 3.0
-    # Importance sampling parameter for PointRend point sampling during training. Parametr `beta` in
-    # the original paper.
-    cfg.MODEL.MASK_FORMER.IMPORTANCE_SAMPLE_RATIO = 0.75

@@ -10,6 +10,7 @@ from torch.nn import functional as F
 from detectron2.config import configurable
 from detectron2.layers import Conv2d, ShapeSpec, get_norm
 from detectron2.modeling import SEM_SEG_HEADS_REGISTRY
+from detectron2.structures import ImageList
 
 from ..transformer_decoder.maskformer_transformer_decoder import build_transformer_decoder
 from ..pixel_decoder.fpn import build_pixel_decoder
@@ -112,21 +113,32 @@ class MaskFormerHead(nn.Module):
             ),
         }
 
-    def forward(self, features, mask=None):
-        return self.layers(features, mask)
-
-    def layers(self, features, mask=None):
+    def forward(self, features, targets=None, images=None):
+        """
+        Args:
+            features: backbone features
+            targets: ground truth targets for training
+            images: original images tensor for superpixel generation
+        """
+        # 原有的特征处理逻辑
         mask_features, transformer_encoder_features, multi_scale_features = self.pixel_decoder.forward_features(features)
+        
+        # 根据配置的decoder名称决定如何调用
+        decoder_name = getattr(self, 'decoder_name', 'MultiScaleMaskedTransformerDecoder')
+        
         if self.transformer_in_feature == "multi_scale_pixel_decoder":
-            predictions = self.predictor(multi_scale_features, mask_features, mask)
-        else:
-            if self.transformer_in_feature == "transformer_encoder":
-                assert (
-                    transformer_encoder_features is not None
-                ), "Please use the TransformerEncoderPixelDecoder."
-                predictions = self.predictor(transformer_encoder_features, mask_features, mask)
-            elif self.transformer_in_feature == "pixel_embedding":
-                predictions = self.predictor(mask_features, mask_features, mask)
+            if decoder_name == "SuperPixelQueryTransformerDecoder":
+                predictions = self.predictor(multi_scale_features, mask_features, targets=targets, images=images)
             else:
-                predictions = self.predictor(features[self.transformer_in_feature], mask_features, mask)
+                predictions = self.predictor(multi_scale_features, mask_features)
+        else:
+            # 其他情况的处理...
+            if self.transformer_in_feature == "transformer_encoder":
+                assert transformer_encoder_features is not None
+                predictions = self.predictor(transformer_encoder_features, mask_features)
+            elif self.transformer_in_feature == "pixel_embedding":
+                predictions = self.predictor(mask_features, mask_features)
+            else:
+                predictions = self.predictor(features[self.transformer_in_feature], mask_features)
+        
         return predictions
