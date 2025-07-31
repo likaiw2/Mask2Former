@@ -11,14 +11,14 @@ MODEL:
     STEM_OUT_CHANNELS: 64
     STRIDE_IN_1X1: False
     OUT_FEATURES: ["res2", "res3", "res4", "res5"]
-    NORM: "SyncBN"  # use syncbn for cityscapes dataset
+    # NORM: "SyncBN"  # use syncbn for cityscapes dataset
     NORM: "BN"  # use syncbn for cityscapes dataset
     RES5_MULTI_GRID: [1, 1, 1]  # not used
 DATASETS:
   TRAIN: ("cityscapes_fine_sem_seg_train",)
   TEST: ("cityscapes_fine_sem_seg_val",)
 SOLVER:
-  IMS_PER_BATCH: 4
+  IMS_PER_BATCH: 3
   BASE_LR: 0.0001
   MAX_ITER: 90000
   WARMUP_FACTOR: 1.0
@@ -50,7 +50,7 @@ INPUT:
   FORMAT: "RGB"
   DATASET_MAPPER_NAME: "mask_former_semantic"
 TEST:
-  EVAL_PERIOD: 1
+  EVAL_PERIOD: 5000
   AUG:
     ENABLED: False
     MIN_SIZES: [512, 768, 1024, 1280, 1536, 1792]

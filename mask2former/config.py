@@ -109,3 +109,22 @@ def add_maskformer2_config(cfg):
     cfg.INPUT.AUGMENTATIONS = [] # "brightness", "contrast", "saturation", "rotation"
 
     cfg.MODEL.MASK_FORMER.TEST.WINDOW_INFERENCE = False
+
+    # swin transformer backbone
+    cfg.MODEL.SWIN = CN()
+    cfg.MODEL.SWIN.PRETRAIN_IMG_SIZE = 224
+    cfg.MODEL.SWIN.PATCH_SIZE = 4
+    cfg.MODEL.SWIN.EMBED_DIM = 96
+    cfg.MODEL.SWIN.DEPTHS = [2, 2, 6, 2]
+    cfg.MODEL.SWIN.NUM_HEADS = [3, 6, 12, 24]
+    cfg.MODEL.SWIN.WINDOW_SIZE = 7
+    cfg.MODEL.SWIN.MLP_RATIO = 4.0
+    cfg.MODEL.SWIN.QKV_BIAS = True
+    cfg.MODEL.SWIN.QK_SCALE = None
+    cfg.MODEL.SWIN.DROP_RATE = 0.0
+    cfg.MODEL.SWIN.ATTN_DROP_RATE = 0.0
+    cfg.MODEL.SWIN.DROP_PATH_RATE = 0.3
+    cfg.MODEL.SWIN.APE = False
+    cfg.MODEL.SWIN.PATCH_NORM = True
+    cfg.MODEL.SWIN.OUT_FEATURES = ["res2", "res3", "res4", "res5"]
+    cfg.MODEL.SWIN.USE_CHECKPOINT = False
